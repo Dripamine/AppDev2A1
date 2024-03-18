@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using log4net;
+using log4net.Config;
 
 namespace Book_AppDev2
 {
     internal class Program
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+
         static void Main(string[] args)
         {
+            XmlConfigurator.Configure(); // Initialize log4net
+            log.Info("Application starting...");
             List<Book> books = new List<Book>();
             while (true)
             {
@@ -27,9 +33,14 @@ namespace Book_AppDev2
                 books.Add(new Book(title, pages, year));
             }
 
-            // Save books to CSV file
-            string filePath = "books.csv";
+            
+            // Get the base directory of the application
+            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Combine the base directory with the filename
+            string filePath = Path.Combine(baseDirectory, "books.csv");
             SaveBooksToCsv(books, filePath);
+
 
             // Read books from CSV file
             List<Book> booksFromFile = ReadBooksFromCsv(filePath);
@@ -50,6 +61,9 @@ namespace Book_AppDev2
                     Console.WriteLine(book.Title);
                 }
             }
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
+            log.Info("Application ended.");
         }
 
         static void SaveBooksToCsv(List<Book> books, string filePath)
